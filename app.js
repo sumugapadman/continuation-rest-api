@@ -16,12 +16,12 @@ app.get('/:statusCode',function(req,res){
         res.statusMessage = 'Internal Server Error without multibyte characters';
         res.append('Cache-Control','must-revalidate,no-cache,no-store');
         res.append('Content-Type','text/html; charset=UTF-8');
-        return res.status(500).sendFile(path.join(__dirname+'/views/500.html'));
+        return res.status(200).sendFile(path.join(__dirname+'/views/500.html'));
     }else if (req.params.statusCode == 2002){
         res.append('Cache-Control','must-revalidate,no-cache,no-store');
         res.append('Content-Type','text/html; charset=UTF-8');
         res.statusMessage = 'Erreur interne du serveur avec des caractères multi-octets (à,é)';
-        return res.status(500).sendFile(path.join(__dirname+'/views/2002.html'));
+        return res.status(200).sendFile(path.join(__dirname+'/views/2002.html'));
     } else {
         return res.send(req.params);
     }
@@ -46,7 +46,7 @@ app.post('/v1', function (req, res) {
 });
 
 app.get('/',function(req,res){
-    res.sendFile(path.join(__dirname+'/views/index.html'));
+    return res.sendFile(path.join(__dirname+'/views/index.html'));
 });
 
 app.listen(PORT,function(){
