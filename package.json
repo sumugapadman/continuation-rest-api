@@ -9,8 +9,12 @@
   "author": "Sumuga Padman",
   "license": "ISC",
   "dependencies": {
+    "ejs": "^2.6.1",
     "express": "^4.16.4",
+    "mime-types": "^2.1.21",
     "nodemon": "^1.18.9",
+    "request": "^2.88.0",
+    "salesforce-signed-request": "0.0.1",
     "urlencode": "^1.1.0",
     "utf8": "^3.0.0"
   }

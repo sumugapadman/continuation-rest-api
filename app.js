@@ -7,20 +7,29 @@
 const express = require("express");
 const path = require('path');
 const utf8 = require('utf8');
-var urlencode = require('urlencode');
-var bodyParser = require('body-parser');
+const urlencode = require('urlencode');
+const bodyParser = require('body-parser');
+const decode = require('salesforce-signed-request');
+const request = require('request');
 /* Require -- END -- */
 
 
 const app = new express();
 const PORT = process.env.PORT || 3000;
+var  consumerSecret = '6B22C4D5F45169332E3CA545F1FB035A2D46B2D6093A96E4D210CC5C0277570C';
 
 app.get('/',function(req,res){
     return res.sendFile(path.join(__dirname+'/views/index.html'));
 });
 
+app.set('view engine', 'ejs');
 app.use(bodyParser.json()); // for parsing application/json
 app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(bodyParser()); // pull information from html in POST
+
+app.get('/home',function(req,res){
+    return res.sendFile(path.join(__dirname+'/views/index.html'));
+});
 
 app.get('/:statusCode',function(req,res){
     if(req.params.statusCode == 500){
@@ -60,6 +69,31 @@ app.post('/v1', function (req, res) {
 
 app.get('/',function(req,res){
     return res.sendFile(path.join(__dirname+'/views/index.html'));
+});
+
+app.post('/signedrequest', function(req, res) {
+
+    // You could save this information in the user session if needed
+    var signedRequest = decode(req.body.signed_request, consumerSecret),
+        context = signedRequest.context,
+        oauthToken = signedRequest.client.oauthToken,
+        instanceUrl = signedRequest.client.instanceUrl,
+
+        query = "SELECT Id, FirstName, LastName, Phone, Email FROM Contact WHERE Id = '" + context.environment.record.Id + "'",
+
+        contactRequest = {
+            url: instanceUrl + '/services/data/v44.0/query?q=' + query,
+            headers: {
+                'Authorization': 'OAuth ' + oauthToken
+            }
+        };
+
+    request(contactRequest, function(err, response, body) {
+        res.setHeader("Cache-Control", "public, max-age=31536000");
+        res.setHeader("Expires", new Date(Date.now() + 31536000).toUTCString());
+        res.render('canvas',{context: context});
+    });
+
 });
 
 app.listen(PORT,function(){
