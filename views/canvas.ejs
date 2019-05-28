@@ -38,13 +38,29 @@
         <% if (locals.context.environment.record.Id) { %>
           <span>Id : <%= context.environment.record.Id %></span><br/>
         <% } %>
+        <br/><br/>
+        <button name="fireRequest" onclick="getSignedRequest(event);">Get Refreshed Signed Request </button>
 
     </main>
-
+    <script type="text/javascript" src="https://login.salesforce.com/canvas/sdk/js/45.0/canvas-all.js"></script>
     <script type="text/javascript">
       (function(){
-        alert('Demo 1');
+        console.log(Sfdc);
       })();
+
+      function getSignedRequest(event){
+        event.preventDefault();
+        Sfdc.canvas.client.refreshSignedRequest(function(data) {
+          if (data.status === 200) {
+              var signedRequest =  data.payload.response;
+              var part = signedRequest.split('.')[1];
+              var obj = JSON.parse(Sfdc.canvas.decode(part));
+              console.log(signedRequest);
+              console.log(part);
+              console.log(obj);
+          }
+        });
+      }
     </script>
   </body>
 </html>
